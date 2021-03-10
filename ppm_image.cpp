@@ -43,17 +43,6 @@ ppm_image::ppm_image(const ppm_image& orig)
     }
 }
 
-ppm_image& ppm_image::operator=(const ppm_image& orig)
-{
-   if (&orig == this) // protect against self-assignment
-   {
-      return *this;
-   }
-
-   // todo: your code here
-
-   return *this;   
-}
 
 ppm_image::~ppm_image()
 {
@@ -116,7 +105,7 @@ ppm_image ppm_image::read(const std::string& filename)
         input >> result.hei;
         input.read(ver, 1);
 
-        create_data(result);
+        result.create_data();
 
         int value = 0;
         for (int i = 0; i < hei; i++)
@@ -199,8 +188,6 @@ ppm_image ppm_image::flip_horizontal() const
 {
     ppm_image result = ppm_image(*this);
 
-    result.data = this->data;
-
     for (int i = 0; i < result.height()/2; i++)
     {
         for (int j = 0; j < result.width() ; j++)
@@ -215,6 +202,23 @@ ppm_image ppm_image::flip_horizontal() const
 ppm_image ppm_image::subimage(int startx, int starty, int w, int h) const
 {
     ppm_image result;
+
+    int countInner=0, countOuter=0;
+    for (int i = 0; i < h; i++)
+    {   
+        result.data = new ppm_pixel * [h];
+        if (i == countOuter + 1) starty++;
+        for (int j = 0; j < w; j++)
+        {
+            result.data[i] = new ppm_pixel[w];
+            if (j == countInner + 1) startx++;
+            result.data[i][j].r = this->data[startx][starty].r;
+            result.data[i][j].g = this->data[startx][starty].g;
+            result.data[i][j].b = this->data[startx][starty].b;
+            countInner = j;
+        }
+        countOuter = i;
+    }
     return result;
 }
 
@@ -222,6 +226,7 @@ ppm_image ppm_image::subimage(int startx, int starty, int w, int h) const
 // Clamps the image if it doesn't fit on this image
 void ppm_image::replace(const ppm_image& image, int startx, int starty)
 {
+   
 }
 
 // Apply the following calculation to the pixels in 
@@ -230,15 +235,35 @@ void ppm_image::replace(const ppm_image& image, int startx, int starty)
 // Can assume that the two images are the same size
 ppm_image ppm_image::alpha_blend(const ppm_image& other, float alpha) const
 {
-   ppm_image result;
-   return result;
+    ppm_image result = ppm_image(*this);
+
+    for (int i = 0; i < result.height(); i++)
+    {
+        for (int j = 0; j < result.width(); j++)
+        {
+            result.data[i][j].r = result.data[i][j].r * (1 - alpha) + other.data[i][j].r * alpha;
+            result.data[i][j].g = result.data[i][j].g * (1 - alpha) + other.data[i][j].g * alpha;
+            result.data[i][j].b = result.data[i][j].b * (1 - alpha) + other.data[i][j].b * alpha;
+        }
+    }
+    return result;
 }
 
 // Return a copy of this image with the given gamma correction applied to it
 ppm_image ppm_image::gammaCorrect(float gamma) const
 {
-   ppm_image result;
-   return result;
+    ppm_image result = ppm_image(*this);
+
+    for (int i = 0; i < result.height(); i++)
+    {
+        for (int j = 0; j < result.width(); j++)
+        {
+            result.data[i][j].r = pow((result.data[i][j].r / 255.0),(1.0 / gamma)) * 255.0f;
+            result.data[i][j].g = pow((result.data[i][j].g / 255.0), (1.0 / gamma)) * 255.0f;
+            result.data[i][j].b = pow((result.data[i][j].b / 255.0), (1.0 / gamma)) * 255.0f;
+        }
+    }
+    return result;
 }
 
 // Return a copy of this image converted to grayscale
@@ -249,8 +274,6 @@ ppm_image ppm_image::grayscale() const
     const float green = 0.6f;
     const float blue = 0.1f;
     float gsVal;
-
-    result.data = this->data;
 
     for (int i = 0; i < result.height() / 2; i++)
     {
@@ -278,9 +301,9 @@ ppm_pixel ppm_image::get(int row, int col) const
 // Set the pixel at index (row, col)
 void ppm_image::set(int row, int col, const ppm_pixel& c)
 {
-    data[row][col].r = c.r;
-    data[row][col].g = c.g;
-    data[row][col].b = c.b;
+    this->data[row][col].r = c.r;
+    this->data[row][col].g = c.g;
+    this->data[row][col].b = c.b;
 }
 
 // return the height of this image
@@ -306,34 +329,35 @@ void ppm_image::set_height(int height)
 }
 
 
-void ppm_image::create_data(const ppm_image& pic)
+void ppm_image::create_data()
 {
-    data = new ppm_pixel*[pic.height()];
+    this->data = new ppm_pixel * [this->height()];
 
-    for (int i = 0; i < pic.height(); i++)
+    for (int i = 0; i < this->height(); i++)
     {
-        data[i] = new ppm_pixel[pic.width()];
-        for (int j = 0; j < pic.width(); j++)
+        this->data[i] = new ppm_pixel[this->width()];
+        for (int j = 0; j < this->width(); j++)
         {
-            data[i][j].r = 0;
-            data[i][j].g = 0;
-            data[i][j].b = 0;
+            this->data[i][j].r = 255;
+            this->data[i][j].g = 255;
+            this->data[i][j].b = 255;
         }
     }
 }
 
-void ppm_image::create_data()
+// Return a copy of the color inverted image
+ppm_image ppm_image::invert() const 
 {
-    data = new ppm_pixel * [hei];
+    ppm_image result = ppm_image(*this);
 
-    for (int i = 0; i < hei; i++)
+    for (int i = 0; i < result.height(); i++)
     {
-        data[i] = new ppm_pixel[wid];
-        for (int j = 0; j < wid; j++)
+        for (int j = 0; j < result.width(); j++)
         {
-            data[i][j].r = 255;
-            data[i][j].g = 255;
-            data[i][j].b = 255;
+            result.data[i][j].r = 255 - result.data[i][j].r;
+            result.data[i][j].g = 255 - result.data[i][j].g;
+            result.data[i][j].b = 255 - result.data[i][j].b;
         }
     }
+    return result;
 }

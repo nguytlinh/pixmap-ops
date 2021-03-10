@@ -226,7 +226,22 @@ ppm_image ppm_image::subimage(int startx, int starty, int w, int h) const
 // Clamps the image if it doesn't fit on this image
 void ppm_image::replace(const ppm_image& image, int startx, int starty)
 {
-   
+
+    int countInner = 0, countOuter = 0;
+    for (int i = 0; i < image.height(); i++)
+    {
+        if (countOuter == i - 1) starty++;
+        for (int j = 0; j < image.width(); j++)
+        {
+            if (countInner == j - 1) startx++;
+            this->data[startx][starty].r = image.data[i][j].r;
+            this->data[startx][starty].g = image.data[i][j].g;
+            this->data[startx][starty].b = image.data[i][j].b;
+            countInner = j;
+        }
+        countOuter = i;
+    }
+
 }
 
 // Apply the following calculation to the pixels in 

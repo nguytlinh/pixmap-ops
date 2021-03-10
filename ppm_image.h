@@ -69,5 +69,17 @@ namespace agl
 
      // return the height of the image
      int height() const;
+
+     void set_width(int width);
+     void set_height(int height);
+
+     void create_data(const ppm_image& pic);
+     void create_data();
+     ppm_pixel **data = nullptr;
+  
+     ppm_image read(const std::string& filename);
+  private:
+      int wid = 0, hei = 0;
+      string version = "P3";
   };
 }

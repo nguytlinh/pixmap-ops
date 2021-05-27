@@ -296,7 +296,86 @@ ppm_image ppm_image::invert() const
     return result;
 }
 
-// Unique
+ppm_image ppm_image::swirl() const {
+    ppm_image result = ppm_image(wid, hei);
+    ppm_pixel p;
+
+    for (int i = 0; i < hei; i++)
+    {
+        for (int j = 0; j < wid; j++) 
+        {
+            result.data[i][j] = data[i][j];
+
+            p.r = result.data[i][j].r;
+            result.data[i][j].r = result.data[i][j].g;
+            result.data[i][j].g = result.data[i][j].b;
+            result.data[i][j].b = p.r;
+        }
+    }
+    return result;
+}
+
+ppm_image ppm_image::lightest(const ppm_image& other) const {
+    ppm_image result = ppm_image(wid, hei);
+    for (int i = 0; i < hei; i++)
+    {
+        for (int j = 0; j < wid; j++)
+        {
+            result.data[i][j].r = std::max(data[i][j].r, other.data[i][j].r);
+            result.data[i][j].g = std::max(data[i][j].g, other.data[i][j].g);
+            result.data[i][j].b = std::max(data[i][j].b, other.data[i][j].b);
+        }
+    }
+    return result;
+}
+
+ppm_image ppm_image::darkest(const ppm_image& other) const {
+    ppm_image result = ppm_image(wid, hei);
+    for (int i = 0; i < hei; i++)
+    {
+        for (int j = 0; j < wid; j++)
+        {
+            result.data[i][j].r = std::min(data[i][j].r, other.data[i][j].r);
+            result.data[i][j].g = std::min(data[i][j].g, other.data[i][j].g);
+            result.data[i][j].b = std::min(data[i][j].b, other.data[i][j].b);
+        }
+    }
+    return result;
+}
+
+ppm_image ppm_image::difference(const ppm_image& other) const {
+    ppm_image result = ppm_image(wid, hei);
+    for (int i = 0; i < hei; i++)
+    {
+        for (int j = 0; j < wid; j++)
+        {
+            result.data[i][j].r = std::abs(data[i][j].r - other.data[i][j].r);
+            result.data[i][j].g = std::abs(data[i][j].g - other.data[i][j].g);
+            result.data[i][j].b = std::abs(data[i][j].b - other.data[i][j].b);
+        }
+    }
+    return result;
+}
+
+ppm_image ppm_image::multiply(const ppm_image& other) const {
+    ppm_image result = ppm_image(wid, hei);
+    for (int i = 0; i < hei; i++)
+    {
+        for (int j = 0; j < wid; j++)
+        {
+            result.data[i][j].r = data[i][j].r * other.data[i][j].r;
+            result.data[i][j].g = data[i][j].g * other.data[i][j].g;
+            result.data[i][j].b = data[i][j].b * other.data[i][j].b;
+        //    if (result.data[i][j].r > 255) result.data[i][j].r = 255;
+        //    if (result.data[i][j].g > 255) result.data[i][j].g = 255;
+        //    if (result.data[i][j].b > 255) result.data[i][j].b = 255;
+
+        }
+    }
+    return result;
+}
+
+// Unique constructor
 ppm_image& ppm_image::operator=(const ppm_image& orig) {
     clear();
     wid = orig.wid;

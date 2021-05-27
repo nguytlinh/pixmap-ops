@@ -68,6 +68,6 @@ int main(int argc, char** argv)
    background.save("background-test.ppm");
    ppm_image blend = background.alpha_blend(soup, 0.5f);
    image.replace(blend, x, y);
-   image.save("earth-blend-0.5.ppm");
+   image.save("earth-blend-0.5.ppm"); 
 }
 

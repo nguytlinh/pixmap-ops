@@ -21,6 +21,7 @@ namespace agl
      ppm_image();
      ppm_image(int width, int height);
      ppm_image(const ppm_image& orig);
+     ppm_image& operator=(const ppm_image& orig);
 
      virtual ~ppm_image();
 
@@ -57,6 +58,9 @@ namespace agl
      // Return a copy of this image converted to grayscale
      ppm_image grayscale() const;
 
+     // Invert the image
+     ppm_image invert() const;
+
      // Get the pixel at index (row, col)
      ppm_pixel get(int row, int col) const;
 
@@ -69,19 +73,16 @@ namespace agl
      // return the height of the image
      int height() const;
 
-     void set_width(int width);
-     void set_height(int height);
-
-     void create_data();
-     ppm_pixel **data = nullptr;
+     void clear();
   
-     ppm_image read(const std::string& filename);
-
-     ppm_image invert() const;
-     
 
   private:
       int wid = 0, hei = 0;
-      string version = "";
+      ppm_pixel** data = NULL;
   };
-}
+} 
+
+
+
+
+

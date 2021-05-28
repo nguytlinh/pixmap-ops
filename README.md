@@ -49,5 +49,6 @@ TODO: Document the features of your PPM image class here. Include example images
 
 ## Results
 
-TODO: Show artworks using your class
+All requirements done except rendering unique image. My GIMP app plug in had unknown issues and would not show any .ppm files, so I could not test properly. I can see the files rendered on my computer successfully, though <br/>
+Added invert, difference, swirl, multiply, lightest, darkest as six unique features.
 
